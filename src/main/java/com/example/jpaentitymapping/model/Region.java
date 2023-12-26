@@ -1,6 +1,8 @@
 package com.example.jpaentitymapping.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.io.Serializable;
@@ -16,6 +18,7 @@ public class Region  implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotBlank
     private String name;
 
     @EqualsAndHashCode.Exclude

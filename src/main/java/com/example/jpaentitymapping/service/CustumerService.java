@@ -2,20 +2,43 @@ package com.example.jpaentitymapping.service;
 
 import com.example.jpaentitymapping.model.*;
 import com.example.jpaentitymapping.repository.CostumerRepository;
+import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Service
-public class CostumerService {
+public class CustumerService {
 
     @Autowired
     private CostumerRepository costumerRepository;
+
+    @Autowired
+    private Validator validator;
+
+    @Transactional(rollbackOn = RuntimeException.class, dontRollbackOn = CustomerException.class)
     public Customer save() {
+
+        Customer bruno = generateCustomer();
+        Customer customer = new Customer();
+
+        Set<ConstraintViolation<Customer>> validate = validator.validate(bruno);
+        if (!validate.isEmpty()) {
+            throw new CustomerException();
+        }
+
+        customer = costumerRepository.save(bruno);
+        return customer;
+    }
+
+    private static Customer generateCustomer() {
         Address address = Address.builder()
-                .street("street1")
+                .street("valor")
                 .build();
 
         Product bike = Product
@@ -51,9 +74,10 @@ public class CostumerService {
                         .singletonList(sale1))
                 .address(address)
                 .sales(Collections.singletonList(sale1))
+                .customerStatusEnum(CustomerStatusEnum.ACTIVE.getValue())
                 .build();
         sale1.setCustomer(bruno);
 
-       return costumerRepository.save(bruno);
+        return bruno;
     }
 }
